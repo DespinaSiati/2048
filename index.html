@@ -22,13 +22,16 @@
       <h1 class="title">2048</h1>
       <div class="scores-container">
         <div class="score-container">0</div>
+        <div class="best-time-container"></div>
         <div class="best-container">0</div>
       </div>
     </div>
 
     <div class="above-game">
       <p class="game-intro">Join the numbers and get to the <strong>2048 tile!</strong></p>
+      <a class="time-restart-button" id="time-new-game">New Timed Game</a>
       <a class="restart-button">New Game</a>
+      <div class="timer-container" id="timer">00:00:00</div>
     </div>
 
     <div class="game-container">
@@ -37,6 +40,7 @@
         <div class="lower">
 	        <a class="keep-playing-button">Keep going</a>
           <a class="retry-button">Try again</a>
+          <a class="time-retry-button">Try again with time</a>
         </div>
       </div>
 
