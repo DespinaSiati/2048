@@ -1,5 +1,6 @@
 function KeyboardInputManager() {
   this.events = {};
+  this.actuator = new HTMLActuator();
 
   if (window.navigator.msPointerEnabled) {
     //Internet Explorer 10 style
@@ -71,6 +72,8 @@ KeyboardInputManager.prototype.listen = function () {
   // Respond to button presses
   this.bindButtonPress(".retry-button", this.restart);
   this.bindButtonPress(".restart-button", this.restart);
+  this.bindButtonPress(".time-retry-button", this.timeRestart);
+  this.bindButtonPress(".time-restart-button", this.timeRestart);
   this.bindButtonPress(".keep-playing-button", this.keepPlaying);
 
   // Respond to swipe events
@@ -130,6 +133,15 @@ KeyboardInputManager.prototype.listen = function () {
 KeyboardInputManager.prototype.restart = function (event) {
   event.preventDefault();
   this.emit("restart");
+};
+
+KeyboardInputManager.prototype.timeRestart = function (event) {
+  event.preventDefault();
+  this.actuator.timerContainer.textContent = "00:00:00";
+  if (window.intervalId !== "undefined") {
+    clearInterval(window.intervalId);
+  }
+  this.emit("timeRestart");
 };
 
 KeyboardInputManager.prototype.keepPlaying = function (event) {
