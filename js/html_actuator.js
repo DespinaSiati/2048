@@ -5,7 +5,7 @@ function HTMLActuator() {
   this.bestTimeContainer = document.querySelector(".best-time-container")
   this.messageContainer  = document.querySelector(".game-message");
   this.timerContainer    = document.querySelector("#timer");
-  window.timer           = new Timer(HTMLActuator.prototype.updateTime, 1000);
+  window.timer           = new Timer(HTMLActuator.prototype.updateTime);
 }
 
 HTMLActuator.prototype.actuate = function (grid, metadata) {
@@ -141,18 +141,15 @@ HTMLActuator.prototype.updateBestScore = function (bestScore) {
 HTMLActuator.prototype.updateBestTime = function (bestTime, won) {
   this.bestTimeContainer.textContent = bestTime;
   if (!window.timedGame) {
-    this.bestTimeContainer.textContent = bestTime;
     return;
   }
   // Update best time only if game is won
   if (won) {
     var timerContainerValue = this.timerContainer.textContent;
-    var timerTimestamp = Date.parse("1970-01-01 ".concat(timerContainerValue));
-    var bestTimeTimestamp  = Date.parse("1970-01-01 ".concat(bestTime));
    // Compare the two timestamps and decide if the player has broken his/her record time.
    // But if the timestamp is 00:00:00 then this means the user has no record till now
    // so there is no point of restricting the update
-    if (timerTimestamp <= bestTimeTimestamp || bestTime === "00:00:00") {
+    if (Date.parse("2015-01-01 ".concat(timerContainerValue)) <= Date.parse("2015-01-01 ".concat(bestTime)) || bestTime === "00:00:00") {
      this.bestTimeContainer.textContent = timerContainerValue;
     }
   }
@@ -171,7 +168,3 @@ HTMLActuator.prototype.clearMessage = function () {
   this.messageContainer.classList.remove("game-won");
   this.messageContainer.classList.remove("game-over");
 };
-
-HTMLActuator.prototype.getBestTimeContainerText = function() {
-  return this.bestTimeContainer.textContent;
-}
