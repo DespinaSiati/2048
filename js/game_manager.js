@@ -4,7 +4,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.storageManager = new StorageManager;
   this.actuator       = new Actuator;
   window.timedGame    = false;  //true when the user selects timed game, otherwise false
-  this.initialRun     = true;
+  this.firstGame     = true;    //true if it's the first game in the browser
 
   this.startTiles     = 2;
 
@@ -21,11 +21,10 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
 // Restart the game
 GameManager.prototype.restart = function () {
   this.storageManager.clearGameState();
-
+  // in case the player selects the restart button while he's on a timed game with the timer running
   window.timer.stop();
   window.timer.reset();
   window.timedGame = false;
-
   this.actuator.continueGame(); // Clear the game won/lost message
   this.setup();
 };
@@ -102,13 +101,13 @@ GameManager.prototype.actuate = function () {
     this.storageManager.setBestScore(this.score);
   }
 
-  // When the game first starts we pass the best time value stored value
-  // But when thats not the case we set it from the frontend element
-  if (this.initialRun && window.timedGame) {
-   this.initialRun = false;
+  // If it's the first game we get the best time value from the storageManager
+  // If not, we get it from the best time container
+  if (this.firstGame && window.timedGame) {
+   this.firstGame = false;
    this.actuator.bestTimeContainer.textContent = this.storageManager.getBestTime();
   } else if (window.timedGame) {
-    this.storageManager.setBestTime(this.actuator.getBestTimeContainerText());
+    this.storageManager.setBestTime(this.actuator.bestTimeContainer.textContent);
   }
 
   // Clear the state when the game is over (game over only, not win)
@@ -119,7 +118,7 @@ GameManager.prototype.actuate = function () {
   }
 
   if (this.won && window.timedGame) {
-   this.storageManager.setBestTime(this.actuator.getBestTimeContainerText());
+   this.storageManager.setBestTime(this.actuator.bestTimeContainer.textContent);
   }
 
   this.actuator.actuate(this.grid, {
