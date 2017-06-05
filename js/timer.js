@@ -1,38 +1,38 @@
-// This is the Timer function, in case the user wants to play a timed game.
+//* This is the Timer function, in case the user wants to play a timed game.
 
-Timer = function(listener) {
+Timer = function(listener, resolution) {
 	this.startTime = 0;
 	this.endTime = 0;
-	this.totalTimePassed = 0; // * total passed time in ms
-	this.running = false;     //* state of the timer
-	this.listener = listener; // * function to receive onTick events
+	this.totalDuration = 0; // * elapsed number of ms in total
+	this.running = false;
+	this.listener = listener; //(listener != undefined ? listener : null); // * function to receive onTick events
+	this.tickResolution = 1000; // * how long between each tick in milliseconds
 	this.tickInterval = null;
 }
-// Starts the timer
+
 Timer.prototype.start = function() {
 	var delegate = function(that, method) { return function() { return method.call(that) } };
 	if(!this.running) {
 		this.startTime = new Date().getTime();
 		this.endTime = 0;
 		this.running = true;
-		this.tickInterval = setInterval(delegate(this, this.onTick), 1000);
+		this.tickInterval = setInterval(delegate(this, this.onTick), this.tickResolution);
 	}
 }
-// Stops the timer
 Timer.prototype.stop = function() {
 	if(this.running) {
 		this.endTime = new Date().getTime();
 		this.running = false;
-		var timePassed = this.endTime - this.startTime;
-		this.totalTimePassed += timePassed;
+		var duration = this.endTime - this.startTime;
+		this.totalDuration += duration;
 		if(this.tickInterval != null)
 			clearInterval(this.tickInterval);
 	}
 	return this.getDuration();
 }
-// Resets the timer to 0
 Timer.prototype.reset = function() {
-	this.totalTimePassed = 0;
+	this.totalDuration = 0;
+	// * if watch is running, reset it to current time
 	this.startTime = new Date().getTime();
 	this.endTime = this.startTime;
 	if (this.tickInterval != null) {
@@ -42,33 +42,34 @@ Timer.prototype.reset = function() {
 			};
 		};
 		clearInterval(this.tickInterval);
-		this.tickInterval = setInterval(delegate(this, this.onTick), 1000);
+		this.tickInterval = setInterval(delegate(this, this.onTick),
+			this.tickResolution);
 	}
 }
-// Returns the total time passed in h, min, sec
-Timer.prototype.getDuration = function() {
-	//  if watch is stopped, use that date, else use now
-	var timePassed = 0;
-	if(this.running)
-		timePassed = new Date().getTime() - this.startTime;
-	timePassed += this.totalTimePassed;
 
-  var hours, min, sec, ms;
-	hours = Math.floor(timePassed / (1000*60*60));
-	timePassed %= (1000*60*60);
-	min = Math.floor(timePassed / (1000*60));
-	timePassed %= (1000*60);
-  sec = Math.floor(timePassed / 1000);
-	ms = timePassed % 1000;
+Timer.prototype.getDuration = function() {
+	// * if watch is stopped, use that date, else use now
+	var duration = 0;
+	if(this.running)
+		duration = new Date().getTime() - this.startTime;
+	duration += this.totalDuration;
+
+  var hours, mins, secs, ms;
+	hours = Math.floor(duration / (1000*60*60));
+	duration %= (1000*60*60);
+	mins = Math.floor(duration / (1000*60));
+	duration %= (1000*60);
+  secs = Math.floor(duration / 1000);
+	ms = duration % 1000;
 
 	return {
 		hours: hours,
-		minutes: min,
-		seconds: sec,
+		minutes: mins,
+		seconds: secs,
 		milliseconds: ms
 	};
 }
-// Function that turns the display of the timer from int to string
+
 Timer.prototype.displayToString = function() {
 	var transform = function(number) {
 		number = number.toString();
@@ -76,11 +77,11 @@ Timer.prototype.displayToString = function() {
 			number = '0' + number;
 		return number;
 	}
-	var display = this.getDuration();  
+	var display = this.getDuration();
 	return transform(display.hours) + ":" + transform(display.minutes) + ":" + transform(display.seconds);
 }
 
-// Triggered every 1000 ms
+// triggered every <resolution> ms
 Timer.prototype.onTick = function() {
 		this.listener(this);
 }
